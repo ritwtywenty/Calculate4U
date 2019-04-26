@@ -30,7 +30,7 @@ You can use eclipse to import the project from a folder and run the main class.
 
 ### Client - Server commands:
 
-| Client request | Server response | Absolut server response | Client receive cost in bytes | Server received cost in bytes |
+| Client request | Server response | Absolut server response | Client receive cost in bytes | Server receive cost in bytes |
 |------|------|------|------|------|
 | is available| returns a confirmation message if the server is available.| yes or nothing.| 16| 16|
 |solve [MATH OP]| solve the [MATH OP] and store the result in the server and return a token and a needed size to client get the message with result information.| [token];[necessary size to get token message]| 1k| 512k|

@@ -20,13 +20,11 @@ public class ServerCalculate4u {
 	boolean executando;
 	MessageDigest messageDigest;
 	int tokenCount;
-	Map<String, String> tokens;
 
 	public ServerCalculate4u() throws Exception {
 		executando = true;
 		servidor = new ServerSocket(PORT);
 		messageDigest = MessageDigest.getInstance("MD5");
-		tokens = new HashMap<String, String>();
 		tokenCount = 1;
 	}
 
@@ -44,14 +42,17 @@ public class ServerCalculate4u {
 	}
 
 	public void comunicacao(Socket cliente) {
+		Map<String, String> tokens = new HashMap<String, String>();
 		try {
 			do {
 				byte request[] = new byte[1024];
 				cliente.getInputStream().read(request);
 				String command = new String(request);
+
 				if (command.startsWith("is available")) {
 					System.out.println("connection request");
 					cliente.getOutputStream().write("yes".getBytes());
+
 				} else if (command.startsWith("solve")) {
 					String operacao = command.split(" ")[1];
 					CalculatorParser calculatorParser = new CalculatorParser();
@@ -63,6 +64,7 @@ public class ServerCalculate4u {
 					String sendSize = token + ";" + solucao.length();
 					System.out.println("solve request: " + operacao);
 					cliente.getOutputStream().write(sendSize.getBytes());
+
 				} else if (command.startsWith("get")) {
 					String getToken = command.split(" ")[1];
 					String tokenKey = null;
@@ -77,10 +79,12 @@ public class ServerCalculate4u {
 					System.out.println("get request: " + tokenKey);
 					cliente.getOutputStream().write(solucao.getBytes());
 					tokens.remove(tokenKey);
+
 				} else if (command.startsWith("end")) {
 					System.out.println("end request");
 					break;
 				}
+
 			} while (true);
 		} catch (Exception e) {
 			System.out.println(e.getStackTrace());
