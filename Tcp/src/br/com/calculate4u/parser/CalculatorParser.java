@@ -8,7 +8,7 @@ public class CalculatorParser {
 	private String langSimbols;
 
 	public CalculatorParser() {
-		langSimbols = "1234567890+-*/().";
+		langSimbols = "1234567890+-*/().^";
 	}
 
 	private String removeSpace(String string) {
@@ -30,8 +30,20 @@ public class CalculatorParser {
 		return true;
 	}
 
+	public boolean isDigit(char c) {
+		if (c >= '0' && c <= '9')
+			return true;
+		return false;
+	}
+
 	public boolean isOperator(char c) {
-		if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^')
+		if (c == '+' || c == '~' || c == '*' || c == '/' || c == '^')
+			return true;
+		return false;
+	}
+
+	public boolean isOperator(String s) {
+		if (s.equals("+") || s.equals("~") || s.equals("*") || s.equals("/") || s.equals("^"))
 			return true;
 		return false;
 	}
@@ -47,7 +59,7 @@ public class CalculatorParser {
 			return 3;
 		if (c == '*' || c == '/')
 			return 2;
-		if (c == '+' || c == '-')
+		if (c == '+' || c == '~')
 			return 1;
 		return -1;
 	}
@@ -59,7 +71,7 @@ public class CalculatorParser {
 		int i;
 		for (i = 0; i < string.length(); i++) {
 			c = string.charAt(i);
-			if (Character.isLetterOrDigit(c) || c == '.') {
+			if (Character.isLetterOrDigit(c) || c == '.' || c == '-') {
 				output += c;
 			} else if (c == '(') {
 				stack.push(c);
@@ -88,7 +100,7 @@ public class CalculatorParser {
 		return output;
 	}
 
-	public double solve(String string) {
+	public double solve(String string) throws Exception {
 		double result = 0;
 		double op1 = 0, op2 = 0;
 		ArrayList<String> array = new ArrayList<>();
@@ -99,7 +111,7 @@ public class CalculatorParser {
 		}
 		while (array.size() > 1) {
 			i = 0;
-			while (!isOperator(array.get(i).charAt(0)))
+			while (!isOperator(array.get(i)))
 				i++;
 			i -= 2;
 			op1 = Double.parseDouble(array.get(i));
@@ -110,7 +122,7 @@ public class CalculatorParser {
 			case "+":
 				result = op1 + op2;
 				break;
-			case "-":
+			case "~":
 				result = op1 - op2;
 				break;
 			case "*":
@@ -133,9 +145,36 @@ public class CalculatorParser {
 		string = removeSpace(string);
 		if (!lexer(string))
 			return "Lexical error";
+
+		String string2 = "";
+		int i;
+		for (i = 0; i < string.length() - 1; i++) {
+			if (string.charAt(i) == '-')
+				try {
+					if (isDigit(string.charAt(i + 1)) && !isDigit(string.charAt(i - 1)))
+						string2 += string.charAt(i);
+					else
+						string2 += '~';
+				}catch(Exception e) {
+					string2 += string.charAt(i);
+				}
+			else
+				string2 += string.charAt(i);
+		}
+		string2 += string.charAt(i);
+		string = string2;
+		
 		string = infToPos(string);
-		Double result = solve(string);
-		return "" + result;
+		if (string == "Invalid OP")
+			return "Invalid Operation";
+		else {
+			try {
+				Double result = solve(string);
+				return "" + result;
+			} catch (Exception e) {
+				return "Invalid Operation";
+			}
+		}
 	}
 
 }
